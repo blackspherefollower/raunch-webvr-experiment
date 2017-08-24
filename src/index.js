@@ -1,25 +1,23 @@
-import 'lodash';
+import * as THREE from 'three';
+var OrbitControls = require('three-orbit-controls')(THREE);
+import VRControls from 'three-vrcontrols-module';
+import ColladaLoader from 'three-collada-loader';
+import VREffect from 'three-vreffect-module';
+import { Stats } from 'three-stats';
+import * as webvrui from 'webvr-ui';
 
-import './THREE.js';
-
-import './../node_modules/three/examples/js/controls/OrbitControls.js';
-import './../node_modules/three/examples/js/loaders/ColladaLoader.js';
-import Stats from './../node_modules/three/examples/js/libs/stats.min.js';
-
-import './../node_modules/three/examples/js/controls/VRControls.js';
-import './../node_modules/three/examples/js/effects/VREffect.js';
-
-import './../node_modules/webvr-polyfill/build/webvr-polyfill.js';
-import './../node_modules/webvr-ui/build/webvr-ui.js';
-
-import RaunchController from './RaunchController.js';
+import ButtplugController from './ButtplugController.js';
 
 var X = new THREE.Vector3(1, 0, 0);
 var Y = new THREE.Vector3(0, 1, 0);
 var Z = new THREE.Vector3(0, 0, 1);
+var clock = new THREE.Clock();
+
 
 var camera, scene, renderer, stats, controls, enterVR, effect;
 var necks = [];
+
+var bpController = new ButtplugController();
 
 function setupScene() {
     renderer = new THREE.WebGLRenderer( { antialias: true } );
@@ -40,7 +38,7 @@ function setupScene() {
     dolly.add(camera);
     scene.add(dolly);
 
-    effect = new THREE.VREffect(renderer);
+    effect = new VREffect(renderer);
     effect.setSize(window.innerWidth, window.innerHeight);
 
     enterVR = new webvrui.EnterVRButton(renderer.domElement, {color: 'black'});
@@ -73,12 +71,12 @@ function setupScene() {
 
     enterVR.getVRDisplay()
         .then(function (display) {
-            controls = new THREE.VRControls(camera);
+            controls = new VRControls(camera);
             animationDisplay = display;
             animationDisplay.requestAnimationFrame(animate);
         })
         .catch(function () { 
-            controls = new THREE.OrbitControls(camera);
+            controls = new OrbitControls(camera);
             animationDisplay = window;
             animationDisplay.requestAnimationFrame(animate);
         });
@@ -92,7 +90,7 @@ function setupModels() {
     scene.add(bed);
 
     var woman;
-    var loader = new THREE.ColladaLoader();
+    var loader = new ColladaLoader();
     loader.load("models/woman/woman.dae", function (collada) {
         woman = collada.scene;
         woman.scale.multiplyScalar(0.1);
@@ -122,11 +120,11 @@ setupScene();
 
 setupModels();
 
-var raunchController = new RaunchController();
+var bpController = new ButtplugController();
 var rate = 0.1;
 var distance = 0.5;
 var isIn = true;
-raunchController.onFinishedMove = () => {
+bpController.onFinishedMove = () => {
     if (Math.random() < 0.05) {
         rate = Math.random() * 0.4 + 0.1;
     }
@@ -134,29 +132,28 @@ raunchController.onFinishedMove = () => {
         distance = Math.random();
     }
     isIn = !isIn;
-    raunchController.move(isIn ? 0 : distance, rate);
+    bpController.move(isIn ? 0 : distance, rate);
 };
-raunchController.onConnected = () => console.log('connected');
+bpController.onConnected = () => console.log('connected');
 
 document.getElementById('raunch-connect').addEventListener('click', function () {
-    raunchController.connect();
+    bpController.connect();
 });
 
 var x = 0;
 var lastUpdate = 0;
 var rate = 0.1;
 var animationDisplay;
-var clock = new THREE.Clock();
 function animate(timestamp) {
     var delta = clock.getDelta();
 
-    raunchController.update(delta);
+    bpController.update(delta);
 
-    document.getElementById('raunch-debug').value = raunchController.currentPosition * 99;
+    document.getElementById('raunch-debug').value = bpController.currentPosition * 99;
 
     if (necks.length) { 
         necks.forEach(function (neck) {
-            neck.position.y = (-(1 - raunchController.currentPosition) / 4 + 1.0);
+            neck.position.y = (-(1 - bpController.currentPosition) / 4 + 1.0);
         });
     }
 

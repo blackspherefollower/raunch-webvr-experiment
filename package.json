@@ -2,20 +2,23 @@
   "name": "raunch-webvr-experiment",
   "license": "MIT",
   "scripts": {
-    "build": "rollup -c"
+    "start": "cross-env NODE_ENV=development webpack-dev-server --open --hot",
+    "build": "cross-env NODE_ENV=production webpack --progress --hide-modules"
   },
   "dependencies": {
-    "lodash": "^4.17.4",
-    "raunch": "0.0.5",
+    "buttplug": "^0.1.0",
     "three": "^0.84.0",
+    "three-collada-loader": "0.0.1",
+    "three-orbit-controls": "^82.1.0",
+    "three-stats": "^1.0.1",
+    "three-vrcontrols-module": "^2.0.1",
+    "three-vreffect-module": "^2.0.0",
     "webvr-polyfill": "^0.9.34",
     "webvr-ui": "^0.9.4"
   },
   "devDependencies": {
-    "rollup": "^0.45.2",
-    "rollup-plugin-commonjs": "^8.0.2",
-    "rollup-plugin-node-resolve": "^3.0.0",
-    "rollup-plugin-uglify": "^2.0.1",
-    "uglify-es": "^3.0.25"
+    "cross-env": "^3.0.0",
+    "webpack": "^2.6.1",
+    "webpack-dev-server": "^2.5.1"
   }
 }

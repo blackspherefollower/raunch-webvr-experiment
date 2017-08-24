@@ -1,6 +1,7 @@
-import * as RaunchWebBluetooth from './../node_modules/raunch/dist/raunch-webbluetooth.js';
+import { ButtplugWebsocketClient, ButtplugMessage, ButtplugDeviceMessage, Device, Log, StopDeviceCmd } from 'buttplug';
 
-export default class RaunchController {
+
+export default class ButtplugController {
     constructor () {
         this._firstMove = true;
         this._device = null;
@@ -12,22 +13,22 @@ export default class RaunchController {
         this.onFinishedMove = null;
         this.onConnected = null;
         this.isConnected = false;
+		this.bpClient = ButtplugWebsocketClient("webvr-experiment");
     }
     connect () {
         try { 
-            RaunchWebBluetooth.RaunchWebBluetooth.discover().then((device) => {
-                this._device = device;
-                this.move(0, 1);
-            });
+			
+			this.move(0, 1);
+			this.bpClient.Connect("ws://localhost:12345/buttplug");
         }
         catch(e) {
-            console.log('RaunchWebBluetooth failed. Retrying...', e);
+            console.log('ButtplugController failed. Retrying...', e);
             setTimeout(this.connect.bind(this), 1000);
         }
     }
     move (position, rate) {
-        if (!this._device) { throw new Error('not connected'); }
-        this._device.sendCommand(Math.floor(position * 99), Math.floor(rate * 99));
+        //if (!this._device) { throw new Error('not connected'); }
+        //this._device.sendCommand(Math.floor(position * 99), Math.floor(rate * 99));
         this._direction = position >= this.currentPosition ? 1 : -1
         this._currentRate = rate;
         this._newPosition = position
